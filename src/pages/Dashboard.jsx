@@ -219,7 +219,7 @@ const Dashboard = () => {
               type="text"
               value={recipientSurname}
               onChange={(e) => setRecipientSurname(e.target.value)}
-              placeholder="Prénom du destinataire"
+              placeholder="Prenom du destinataire"
               className="w-full p-2 border rounded mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
             <input
