@@ -7,7 +7,7 @@ const AppRouter = () => {
     <Router>
       <Routes>
         <Route path="/" element={<AuthPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/:username" element={<Dashboard  />} />
       </Routes>
     </Router>
   );

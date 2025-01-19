@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 const AuthPage = () => {
-  const dispatch = useDispatch();
   const [credentials, setCredentials] = useState({ username: '', password: '', accountNumber: '' });
   const [showAccountNumber, setShowAccountNumber] = useState(false);
 
@@ -13,8 +11,8 @@ const AuthPage = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    window.location.href = '/dashboard';
-  };
+    window.location.href = `/dashboard/${credentials.username}`;
+  };
 
   const toggleAccountNumberVisibility = () => {
     setShowAccountNumber(!showAccountNumber);

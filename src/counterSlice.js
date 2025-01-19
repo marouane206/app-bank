@@ -1,18 +1,38 @@
-// redux/counterSlice.js
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
-const counterSlice = createSlice({
-  name: 'counter',
-  initialState: { value: 0 },
+const transactionsSlice = createSlice({
+  name: "transactions",
+  initialState: {
+    balance: 0,
+    totalEntry: 0,
+    totalExit: 0,
+    history: [],
+  },
   reducers: {
-    increment: (state) => {
-      state.value += 1;
+    deposit: (state, action) => {
+      const amount = action.payload;
+      state.balance += amount;
+      state.totalEntry += amount;
+      state.history.push(`Dépôt de ${amount.toFixed(2)} MAD`);
     },
-    decrement: (state) => {
-      state.value -= 1;
+    withdraw: (state, action) => {
+      const { amount, reason } = action.payload;
+      state.balance -= amount;
+      state.totalExit += amount;
+      state.history.push(
+        `Retrait de ${amount.toFixed(2)} MAD (Raison : ${reason})`
+      );
+    },
+    sendMoney: (state, action) => {
+      const { amount, recipientName, recipientSurname, rib } = action.payload;
+      state.balance -= amount;
+      state.totalExit += amount;
+      state.history.push(
+        `Envoi de ${amount.toFixed(2)} MAD à ${recipientName} ${recipientSurname} (RIB: ${rib})`
+      );
     },
   },
 });
 
-export const { increment, decrement } = counterSlice.actions;
-export default counterSlice.reducer;
+export const { deposit, withdraw, sendMoney } = transactionsSlice.actions;
+export default transactionsSlice.reducer;
