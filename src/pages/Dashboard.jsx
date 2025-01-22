@@ -19,7 +19,13 @@ const Dashboard = () => {
   const [sendingAmount, setSendingAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showTransferForm, setShowTransferForm] = useState(false);
-  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const [showWithdrawreason, setShowWithdrawreason] = useState(false);
+  const [isBalanceVisible, setIsBalanceVisible] = useState(false);
+  const [showDepositForm, setShowDepositForm] = useState(false);
+  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
+  const [showTotalEntry, setShowTotalEntry] = useState(false);
+const [showTotalExit, setShowTotalExit] = useState(false);
+
   const { username } = useParams();
 
   // Conversion de devise
@@ -56,7 +62,9 @@ const Dashboard = () => {
     const parsedAmount = parseFloat(amount);
     if (!isNaN(parsedAmount) && parsedAmount > 0) {
       dispatch(deposit(parsedAmount));
+      setShowDepositForm(false);
       setAmount("");
+      setErrorMessage("");
     } else {
       setErrorMessage("Veuillez entrer un montant valide pour le dépôt.");
     }
@@ -69,6 +77,9 @@ const Dashboard = () => {
         dispatch(withdraw({ amount: parsedAmount, reason: withdrawReason }));
         setAmount("");
         setWithdrawReason("");
+        setShowWithdrawForm(false);
+        setShowWithdrawreason(false);
+        setErrorMessage("");
       } else {
         setErrorMessage("Solde insuffisant pour effectuer ce retrait.");
       }
@@ -86,6 +97,7 @@ const Dashboard = () => {
       setRib("");
       setSendingAmount("");
       setShowTransferForm(false);
+      setErrorMessage("");
     } else {
       setErrorMessage(
         parsedAmount > balance
@@ -104,9 +116,7 @@ const Dashboard = () => {
     return <li className="text-sm text-gray-700">{item}</li>;
   };
 
-  // États pour afficher les formulaires de dépôt et retrait
-  const [showDepositForm, setShowDepositForm] = useState(false);
-  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
+  
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
@@ -134,26 +144,32 @@ const Dashboard = () => {
             )}
           </button>
           {/* Sélecteur de devise */}
-          <div className="flex justify-between items-center mt-2">
+          <div className="flex justify-between items-center mt-4">
     {/* Sélecteur de devise */}
     <select
-      value={selectedCurrency}
-      onChange={handleCurrencyChange}
-      className="p-2 border rounded bg-white text-gray-700"
-    >
-      {Object.keys(conversionRates).map((currency) => (
-        <option key={currency} value={currency}>
-          {currency}
-        </option>
-      ))}
-    </select>
+  value={selectedCurrency}
+  onChange={handleCurrencyChange}
+  className="p-3 border-2 rounded-lg bg-gray-100 text-gray-800 font-semibold shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition"
+>
+  {Object.keys(conversionRates).map((currency) => (
+    <option key={currency} value={currency} className="text-gray-800">
+      {currency}
+    </option>
+  ))}
+</select>
+
 
     {/* Solde Converti */}
-{convertedBalance && (
-  <div className="text-lg text-gray-500">
-    {selectedCurrency}: <span className="text-2xl font-bold text-gray-700">{convertedBalance}</span>
-  </div>
-)}
+    <div className="text-lg text-gray-500">
+  {selectedCurrency}:{" "}
+  {isBalanceVisible ? (
+    <span className="text-2xl font-bold text-gray-700">{convertedBalance}</span>
+  ) : (
+    <span className="text-2xl font-bold text-gray-700">****</span>
+  )}
+</div>
+
+
 
   </div>
         </div>
@@ -196,89 +212,112 @@ const Dashboard = () => {
         </div>
 
         {/* Formulaire Dépôt */}
-        {showDepositForm && (
-          <div className="mb-6">
-            <input
-              type="text"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="Montant"
-              className="p-2 border rounded w-full mb-2"
-            />
-            <button
-              onClick={handleDeposit}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              Déposer
-            </button>
-          </div>
-        )}
+{showDepositForm && (
+  <div className="mb-6">
+    <input
+      type="text"
+      value={amount}
+      onChange={(e) => setAmount(e.target.value)}
+      placeholder="Montant"
+      className="p-2 border rounded w-full mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+    {errorMessage && (
+      <div className="text-red-500 text-sm mb-2">{errorMessage}</div>
+    )}
+    <button
+      onClick={handleDeposit}
+      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+    >
+      Déposer
+    </button>
+  </div>
+)}
 
-        {/* Formulaire Retrait */}
-        {showWithdrawForm && (
-          <div className="mb-6">
-            <input
-              type="text"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="Montant"
-              className="p-2 border rounded w-full mb-2"
-            />
-            <input
-              type="text"
-              value={withdrawReason}
-              onChange={(e) => setWithdrawReason(e.target.value)}
-              placeholder="Raison du retrait"
-              className="p-2 border rounded w-full mb-2"
-            />
-            <button
-              onClick={handleWithdraw}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            >
-              Retirer
-            </button>
-          </div>
-        )}
+{/* Formulaire Retrait */}
+{showWithdrawForm && (
+  <div className="mb-6">
+    <input
+      type="text"
+      value={amount}
+      onChange={(e) => setAmount(e.target.value)}
+      placeholder="Montant"
+      className="p-2 border rounded w-full mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+    {errorMessage && (
+      <div className="text-red-500 text-sm mb-2 ">{errorMessage}</div>
+    )}
+    <input
+      type="text"
+      value={withdrawReason}
+      onChange={(e) => setWithdrawReason(e.target.value)}
+      placeholder="Raison du retrait"
+      className="p-2 border rounded w-full mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+    {errorMessage && (
+      <div className="text-red-500 text-sm mb-2">{errorMessage}</div>
+    )}
+    <button
+      onClick={handleWithdraw}
+      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+    >
+      Retirer
+    </button>
+  </div>
+)}
 
-        {/* Formulaire Envoi d'argent */}
-        {showTransferForm && (
-          <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-            <input
-              type="text"
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
-              placeholder="Nom du destinataire"
-              className="p-2 border rounded w-full mb-2"
-            />
-            <input
-              type="text"
-              value={recipientSurname}
-              onChange={(e) => setRecipientSurname(e.target.value)}
-              placeholder="Prénom du destinataire"
-              className="p-2 border rounded w-full mb-2"
-            />
-            <input
-              type="text"
-              value={rib}
-              onChange={(e) => setRib(e.target.value)}
-              placeholder="RIB (16 chiffres)"
-              className="p-2 border rounded w-full mb-2"
-            />
-            <input
-              type="text"
-              value={sendingAmount}
-              onChange={(e) => setSendingAmount(e.target.value)}
-              placeholder="Montant"
-              className="p-2 border rounded w-full mb-2"
-            />
-            <button
-              onClick={handleSendMoney}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-            >
-              Envoyer
-            </button>
-          </div>
-        )}
+{/* Formulaire Envoi d'argent */}
+{showTransferForm && (
+  <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+    <input
+      type="text"
+      value={recipientName}
+      onChange={(e) => setRecipientName(e.target.value)}
+      placeholder="Nom du destinataire"
+      className="p-2 border rounded w-full mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+    {errorMessage && recipientName === "" && (
+      <div className="text-red-500 text-sm mb-2">Nom requis.</div>
+    )}
+    <input
+      type="text"
+      value={recipientSurname}
+      onChange={(e) => setRecipientSurname(e.target.value)}
+      placeholder="Prénom du destinataire"
+      className="p-2 border rounded w-full mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+    {errorMessage && recipientSurname === "" && (
+      <div className="text-red-500 text-sm mb-2">Prénom requis.</div>
+    )}
+    <input
+      type="text"
+      value={rib}
+      onChange={(e) => setRib(e.target.value)}
+      placeholder="RIB (16 chiffres)"
+      maxLength="16"
+      className="p-2 border rounded w-full mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+    {errorMessage && rib.length !== 16 && (
+      <div className="text-red-500 text-sm mb-2">Le RIB doit contenir 16 chiffres.</div>
+    )}
+    <input
+      type="text"
+      value={sendingAmount}
+      onChange={(e) => setSendingAmount(e.target.value)}
+      placeholder="Montant"
+      className="p-2 border rounded w-full mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+    {errorMessage && sendingAmount === "" && (
+      <div className="text-red-500 text-sm mb-2">Montant requis.</div>
+    )}
+    <button
+      onClick={handleSendMoney}
+      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+    >
+      Envoyer
+    </button>
+  </div>
+)}
+
 
         {/* Historique */}
         <div className="bg-gray-50 p-4 rounded-lg shadow-md mt-6">
